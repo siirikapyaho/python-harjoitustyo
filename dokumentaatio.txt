@@ -1,0 +1,105 @@
+Ohjelmoinnin peruskurssin harjoitustyö, syksy 2021:
+Elokuvateatterin varausjärjestelmä - dokumentaatio
+Tekijä: Siiri Käpyaho
+
+Tässä dokumentaatiossa kuvataan harjoitustyönä tehdyn varausjärjestelmän
+toimintaperiaate ja käytetyt funktiot sekä niiden yhteydet.
+
+Minimivaatimuksina varausjärjestlmällä oli seuraavat:
+- Teatterissa on useampi (erikokoinen) Sali
+- Teatterissa esitetään useampia elokuvia yhtä aikaa
+- Joka salissa on päivässä useampi näytös
+- Asiakas voi varata haluamaansa näytökseen istumapaikan (edellyttäen, että salissa on tilaa)
+- Ylläpitäjä voi lisätä elokuvia ja näytöksiä sekä selailla varauksia
+
+Lisäksi työssä vaadittiin erilliset käyttöliittymät asiakkaalle ja
+ylläpitäjälle, ja tämä on toteutettu tekstipohjaisena siten, että ohjelman
+käynnistyessä asiakas voi suoraan siirtyä selaamaan elokuvia ja tekemään
+varauksia, ja ylläpitäjä voi kirjautua samasta näkymästä sisään. Salasana,
+jolla pääsee tutustumaan ylläpitäjän järjestelmään on mielikuvituksettomasti
+"admin" (ilman lainausmerkkejä). Kolmesta väärästä salasanasta ohjelman
+suoritus keskeytetään.
+
+Työssä on myös vaatimusten mukaisesti käytetty tiedostoja tiedon
+tallentamiseen ja hakemiseen. Ohjelman suorittamiseen tarvittavia tiedostoja
+on 4: asiakkaat.csv, naytokset.csv, ohjelmisto.csv ja varaukset.csv. Ohjelman
+toiminnan kannalta on kriittistä, että tiedot ovat tiedostoissa täysin oikeassa
+järjestyksessä ja muodossa. Näihin tiedostoihin on tallennettu joitakin tietoja,
+jotta ohjelman testaaminen olisi mielekkäämpää.
+
+Työssä on pyritty huomiomaan virhesyötteiden mahdollisuus, mutta ei täysin
+taattu, etteikö ohjelma voisi kaatua käyttäjän virheeseen. Ohjelma olettaa,
+että sitä osataan käyttää ohjelmassa annettujen syöttöohjeiden ja tämän
+dokumentaation perusteella oikein.
+
+Asiakkaat-tiedostosta löytyy asiakkaan sähköpostiosoite (joka toimii myös
+käyttäjätunnuksena/id:nä) sekä nimi. Toki halutessaan asiakastietoja voisi
+laajentaa ja lisätä esimerkiksi puhelinnumeron, maksutiedot, syntymäajan...
+
+Ohjelmistosta löytyvät elokuvat, joita teatterissa esitetään. Elokuvista
+on tallessa nimi, kesto ja ikäraja. Ylläpitäjällä on mahdollisuus lisätä
+uusia elokuvia ohjelmistoon, mutta ei poistaa.
+
+Näytöksissä ovat tallessa elokuvateatterin näytökset, eli niiden id:t,
+elokuvan nimi, sali, päivämäärä, alkamisaika ja varatut paikat. Ylläpitäjällä
+on mahdollisuus lisätä uusia näytöksiä, mutta ei poistaa.
+
+Varauksiin tallennetaan tieto varaaja(n sähköpostiosoittee)sta, mihin
+näytökseen varaus on tehty eli näytöksen id:stä sekä varatusta paikasta. Asiakas
+voi varata yhden paikan kerrallaan.
+
+Ohjelma suoritetaan ajamalla funktio main(). Se koostuu useista funktioista,
+joita tarkastellaan seuraavaksi.
+
+Alkuvalikosta päästään joko selaamaan elokuvia ja varaamaan lippuja tai
+kirjautumaan sisään ylläpitäjänä. Jos halutaan kirjautua sisään, siirrytään
+funktioon tarkasta_salasana(), ja mikäli syötetty salasana on "admin",
+siirrytään funktioon avaa_yllapitajan_jarjestelma(). Tällöin tulostetaan
+valikko ylläpitäjän toiminnoista ja siirrytään valinnan mukaiseen funktioon.
+
+Mikäli halutaan tarkastella varauksia, siirrytään funktioon tarkastele_varauksia().
+Tällöin avataan tiedosto varaukset.csv, muotoillaan haluttu tieto luettavampaan
+muotoon ja listataan kaikki löytyneet varaukset. Funktioilla etsi_asiakas() ja
+etsi_naytos() voidaan varauksesta löytyneiden tietojen perusteella etsiä asiakkaan
+ja näytöksen tarkemmat tiedot tiedostoista asiakkaat.csv ja naytokset.csv.
+
+Mikäli halutaan lisätä uusi elokuva elokuvateatterin ohjelmistoon, siirrytään
+funktioon lisaa_elokuva(). Käyttäjää pyydetään syöttämään tarvittavat tiedot,
+eli nimi, kesto ja ikäraja. Ennen kuin tiedot tallennetaan, kysytään, haluaako
+käyttäjä varmasti tallentaa elokuvan syöttämillään tiedoilla. Mikäli ei,
+palataan takaisin ylläpitäjän valikkoon. Mikäli kyllä, elokuvan tiedot tallennetaan
+ja palataan takaisin ylläpitäjän valikkoon.
+
+Jos ylläpitäjä haluaa lisätä näytöksen, siirrytään funktioon lisaa_naytos().
+Funktio listaa ohjelmistossa olevat elokuvat ja pyytää käyttäjää valitsemaan
+elokuvan, jota aiotaan näyttää. Jos elokuvaa ei löydy ohjelmistosta, pyydetään
+käyttäjää syöttämään ohjelmistossa oleva elokuva. Seuraavaksi kysytään näytökselle
+haluttu päivämäärä ja alkamisaika. Funktio anna_alkamisaika() palauttaa tuplena
+alkamisajan datetime-oliona sekä str-muodossa tiedostoon tallentamista varten.
+Seuraavaksi käyttäjää pyydetään syöttämään sali, jossa näytös halutaan näyttää.
+Alkamisajan ja salin perusteella tarkastetaan, onko sali varattu etsimällä
+näytökset sisältävästä tiedostosta kaikki näytökset, jotka ovat samassa salissa,
+ja tarkastetaan, menevätkö näytökset päällekäin. Sali lasketaan varatuksi vartista
+ennen elokuvan alkua varttiin elokuvan loppumisen jälkeen. Mikäli sali on varattu,
+käyttäjää pyydetään syöttämään eri sali tai eri aika. Lopuksi luodaan näytökselle
+id.
+
+Siirrytään asiakkaan järjestelmään ja alkuvalikosta löytyvään vaihtoehtoon
+selata elokuvia ja varata lippuja, eli funktioon selaa_elokuvia(). Ensin haetaan
+funktion hae_elokuvat() avulla ohjelmisto ja järjestetään listaus
+aakkosjärjestykseen. Syöttämällä elokuvan nimen käyttäjä näkee listauksen kaikista
+valitsemansa elokuvan näytöksistä. Näytöksen valinnan jälkeen siirrytään funktioon
+tee_varaus(). Näytös-id:n perusteella tulostetaan paikkakartta, jossa varatut
+paikat on haettu funktiolla hae_varatut_paikat() ja merkattu karttaan symbolilla
+x. Seuraavaksi käyttäjän tulee valita vapaa paikka; mikäli käyttäjä valitsee
+varatun tai ei-olemassaolevan paikan, käyttäjää pyydetään valitsemaan toinen
+paikka. Tämän jälkeen käyttäjää pyydetään syöttämään sähköpostiosoitteensa.
+Siirrytään funktioon luo_käyttäjä(), joka oikeastaan tarkastaa, löytyykö kyseinen
+sähköposti asiakasrekisteristä. Mikäli ei, pyydetään käyttäjältä nimi ja
+tallennetaan tiedot tiedostoon. Muuten siirrytään suoraan tallentamaan varauksen
+tiedot varaustiedostoon. Lopuksi siirrytään funktioon lisaa_varattu_paikka(),
+jolla tallennetaan näytöksistä kirjaa pitävään tiedostoon tieto uudesta varatusta
+paikasta.
+
+
+
